@@ -6,16 +6,20 @@ const number = document.getElementById("span--number");
 
 number.innerText = 0;
 
+const ADD = "ADD";
+const MINUS = "MINUS";
+
 // only one function that can modify the 'countStore'
 // action is the way we can communicate with the modifier
 // whatever reducer returned that will be a state of your application
 const countModifier = (count = 0, action) => {
-    if (action.type === "ADD") {
-        return count + 1;
-    } else if (action.type === "MINUS") {
-        return count - 1;
-    } else {
-        return count;
+    switch ( action.type ){
+        case ADD:
+            return count + 1;
+        case MINUS:
+            return count - 1;
+        default:
+            return count;
     }
 };
 
@@ -31,7 +35,7 @@ countStore.subscribe(onChange);
 // dispatch call reducer with an action
 // action must be an object
 // action must have the 'type' element and we cannot modify its name. 
-add.addEventListener("click", () => countStore.dispatch({type: "ADD" }))
-minus.addEventListener("click", () => countStore.dispatch({type: "MINUS" }))
+add.addEventListener("click", () => countStore.dispatch({type: ADD }))
+minus.addEventListener("click", () => countStore.dispatch({type: MINUS }))
 
 console.log(countStore.getState())
