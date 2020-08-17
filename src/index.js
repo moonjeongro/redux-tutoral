@@ -1,41 +1,77 @@
 import {createStore} from "redux";
 
-const add = document.getElementById("button--add");
-const minus = document.getElementById("button--minus");
-const number = document.getElementById("span--number");
+const ADD_TODO = "ADD_TODO";
+const DEL_TODO = "DEL_TODO";
 
-number.innerText = 0;
+const addButton = document.getElementById("todo__addButton");
+const input = document.getElementById("todo__input");
+const todoList = document.getElementById("todo__ul");
 
-const ADD = "ADD";
-const MINUS = "MINUS";
+const addToDo = (text) => {
+    return {
+        type: ADD_TODO, 
+        text
+    }
+}
 
-// only one function that can modify the 'countStore'
-// action is the way we can communicate with the modifier
-// whatever reducer returned that will be a state of your application
-const countModifier = (count = 0, action) => {
-    switch ( action.type ){
-        case ADD:
-            return count + 1;
-        case MINUS:
-            return count - 1;
-        default:
-            return count;
+const deleteTodo = (id) => {
+    return {
+        type: DEL_TODO,
+        id
+    }
+}
+
+// object MUST BE created not mutated!!
+const reducer = (state = [], action) => {
+    switch(action.type){
+        case ADD_TODO:
+            return [{ text: action.text, id: Date.now()}, ...state];
+        case DEL_TODO: 
+            return state.filter(toDo => toDo.id !== action.id);
+        default: 
+            return state;
     }
 };
 
-const countStore = createStore(countModifier);
+const store = createStore(reducer);
 
-const onChange = () => {
-    number.innerText = countStore.getState();
+const dispatchAddToDo = (text) => {
+    store.dispatch(addToDo(text));
 }
 
-// If we want listen changing the state we can subscribe
-countStore.subscribe(onChange);
+const dispatchDeleteToDo = (event) => {
+    const id = parseInt(event.target.parentNode.id);
+    store.dispatch(deleteTodo(id));
+}
 
-// dispatch call reducer with an action
-// action must be an object
-// action must have the 'type' element and we cannot modify its name. 
-add.addEventListener("click", () => countStore.dispatch({type: ADD }))
-minus.addEventListener("click", () => countStore.dispatch({type: MINUS }))
+const createTodo = toDo => {
+    const li = document.createElement("li");
+    li.id = toDo.id;
+    li.innerHTML = toDo.text;
 
-console.log(countStore.getState())
+    const btn = document.createElement("button")
+    btn.innerHTML = "DEL"
+    btn.addEventListener("click", dispatchDeleteToDo);
+
+    li.appendChild(btn);
+    todoList.appendChild(li);
+};
+
+const onSubmit = e => {
+    e.preventDefault();
+    const toDo = input.value;
+    input.value = "";
+    dispatchAddToDo(toDo)
+};
+
+const paintTodos = () =>{ 
+    todoList.innerHTML = "";
+    const toDos = store.getState();
+    toDos.forEach((toDo)=>{
+        createTodo(toDo);
+    })
+}
+
+store.subscribe(paintTodos);
+
+addButton.addEventListener("click", onSubmit);
