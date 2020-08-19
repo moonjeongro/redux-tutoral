@@ -1,3 +1,3 @@
-# Vanilla JS Redux
+# Redux tutorial
 
 Learning Vanilla-Redux and React-Redux
